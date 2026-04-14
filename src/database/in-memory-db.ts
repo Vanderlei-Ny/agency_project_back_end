@@ -1,6 +1,6 @@
 import { hashSync } from "bcryptjs";
 import { randomUUID } from "node:crypto";
-import { AgencyRecord, UserRecord } from "../core/types/records";
+import { AgencyRecord, FormRecord, UserRecord } from "../core/types/records";
 
 export const users: UserRecord[] = [
   {
@@ -13,3 +13,4 @@ export const users: UserRecord[] = [
 ];
 
 export const agencies: AgencyRecord[] = [];
+export const forms: FormRecord[] = [];

@@ -12,10 +12,13 @@ type CreateAgencyInput = {
 
 export function createAgency(input: CreateAgencyInput) {
   const { name, adminName, adminEmail, adminPassword } = input;
+  const now = new Date().toISOString();
 
   const agency: AgencyRecord = {
     id: randomUUID(),
     name,
+    createdAt: now,
+    updatedAt: now,
   };
 
   let agencyAdmin: {
