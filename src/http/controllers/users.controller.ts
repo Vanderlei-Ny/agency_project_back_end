@@ -12,7 +12,7 @@ export async function meController(
     return reply.code(401).send({ message: "Token invalido ou ausente." });
   }
 
-  const result = getCurrentUser(user.id);
+  const result = await getCurrentUser(user.id);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });

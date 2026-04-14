@@ -15,7 +15,7 @@ export async function createAgencyController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = createAgency(request.body);
+  const result = await createAgency(request.body);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });
@@ -36,7 +36,7 @@ export async function createAgencyUserController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = createAgencyUser({
+  const result = await createAgencyUser({
     agencyId: request.params.agencyId,
     ...request.body,
   });
@@ -55,7 +55,7 @@ export async function updateAgencyController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = updateAgency({
+  const result = await updateAgency({
     agencyId: request.params.agencyId,
     name: request.body.name,
   });
@@ -71,7 +71,7 @@ export async function deleteAgencyController(
   request: FastifyRequest<{ Params: { agencyId: string } }>,
   reply: FastifyReply,
 ) {
-  const result = deleteAgency(request.params.agencyId);
+  const result = await deleteAgency(request.params.agencyId);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });

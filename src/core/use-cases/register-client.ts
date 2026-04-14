@@ -1,7 +1,5 @@
 import { hashSync } from "bcryptjs";
-import { randomUUID } from "node:crypto";
-import { users } from "../../database/in-memory-db";
-import { UserRecord } from "../types/records";
+import { prisma } from "../../database/prisma";
 
 type RegisterClientInput = {
   name: string;
@@ -9,23 +7,22 @@ type RegisterClientInput = {
   password: string;
 };
 
-export function registerClient(input: RegisterClientInput) {
+export async function registerClient(input: RegisterClientInput) {
   const { name, email, password } = input;
 
-  const alreadyExists = users.some((user) => user.email === email);
+  const alreadyExists = await prisma.user.findUnique({ where: { email } });
   if (alreadyExists) {
     return { error: "E-mail ja cadastrado.", statusCode: 409 as const };
   }
 
-  const newClient: UserRecord = {
-    id: randomUUID(),
-    name,
-    email,
-    passwordHash: hashSync(password, 10),
-    role: "CLIENT",
-  };
-
-  users.push(newClient);
+  const newClient = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash: hashSync(password, 10),
+      role: "CLIENT",
+    },
+  });
 
   return {
     data: {

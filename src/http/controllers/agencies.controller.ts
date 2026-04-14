@@ -5,6 +5,6 @@ export async function listAgenciesController(
   _request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const result = listActiveAgencies();
+  const result = await listActiveAgencies();
   return reply.code(result.statusCode).send(result.data);
 }

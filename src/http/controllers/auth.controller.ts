@@ -8,7 +8,7 @@ export async function registerClientController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = registerClient(request.body);
+  const result = await registerClient(request.body);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });
@@ -21,7 +21,7 @@ export async function loginController(
   request: FastifyRequest<{ Body: { email: string; password: string } }>,
   reply: FastifyReply,
 ) {
-  const result = authenticateUser(request.body);
+  const result = await authenticateUser(request.body);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });
@@ -31,6 +31,7 @@ export async function loginController(
     id: result.data.id,
     email: result.data.email,
     role: result.data.role,
+    agencyId: result.data.agencyId,
   });
 
   return reply.send({ token, user: result.data });

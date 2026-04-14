@@ -1,23 +1,27 @@
-import { agencies } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
 type UpdateAgencyInput = {
   agencyId: string;
   name: string;
 };
 
-export function updateAgency(input: UpdateAgencyInput) {
+export async function updateAgency(input: UpdateAgencyInput) {
   const { agencyId, name } = input;
 
-  const agency = agencies.find((item) => item.id === agencyId);
-  if (!agency || agency.deletedAt) {
+  const agency = await prisma.agency.findFirst({
+    where: { id: agencyId, deletedAt: null },
+  });
+  if (!agency) {
     return { error: "Agencia nao encontrada.", statusCode: 404 as const };
   }
 
-  agency.name = name;
-  agency.updatedAt = new Date().toISOString();
+  const updatedAgency = await prisma.agency.update({
+    where: { id: agencyId },
+    data: { name },
+  });
 
   return {
-    data: agency,
+    data: updatedAgency,
     statusCode: 200 as const,
   };
 }

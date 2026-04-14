@@ -1,7 +1,7 @@
-import { users } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
-export function getCurrentUser(userId: string) {
-  const user = users.find((item) => item.id === userId);
+export async function getCurrentUser(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
     return { error: "Usuario nao encontrado.", statusCode: 404 as const };

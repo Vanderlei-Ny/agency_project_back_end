@@ -1,16 +1,21 @@
-import { agencies } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
-export function deleteAgency(agencyId: string) {
-  const agency = agencies.find((item) => item.id === agencyId);
-  if (!agency || agency.deletedAt) {
+export async function deleteAgency(agencyId: string) {
+  const agency = await prisma.agency.findFirst({
+    where: { id: agencyId, deletedAt: null },
+  });
+  if (!agency) {
     return { error: "Agencia nao encontrada.", statusCode: 404 as const };
   }
 
-  agency.deletedAt = new Date().toISOString();
-  agency.updatedAt = agency.deletedAt;
+  const deletedAt = new Date();
+  const deletedAgency = await prisma.agency.update({
+    where: { id: agencyId },
+    data: { deletedAt, statusAgency: false },
+  });
 
   return {
-    data: { id: agency.id, deletedAt: agency.deletedAt },
+    data: { id: deletedAgency.id, deletedAt: deletedAgency.deletedAt },
     statusCode: 200 as const,
   };
 }

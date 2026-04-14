@@ -1,7 +1,10 @@
-import { agencies } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
-export function listActiveAgencies() {
-  const activeAgencies = agencies.filter((item) => !item.deletedAt);
+export async function listActiveAgencies() {
+  const activeAgencies = await prisma.agency.findMany({
+    where: { deletedAt: null, statusAgency: true },
+    orderBy: { createdAt: "desc" },
+  });
 
   return {
     data: activeAgencies,

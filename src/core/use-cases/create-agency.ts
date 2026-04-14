@@ -1,7 +1,5 @@
 import { hashSync } from "bcryptjs";
-import { randomUUID } from "node:crypto";
-import { agencies, users } from "../../database/in-memory-db";
-import { AgencyRecord, UserRecord } from "../types/records";
+import { prisma } from "../../database/prisma";
 
 type CreateAgencyInput = {
   name: string;
@@ -10,16 +8,8 @@ type CreateAgencyInput = {
   adminPassword?: string;
 };
 
-export function createAgency(input: CreateAgencyInput) {
+export async function createAgency(input: CreateAgencyInput) {
   const { name, adminName, adminEmail, adminPassword } = input;
-  const now = new Date().toISOString();
-
-  const agency: AgencyRecord = {
-    id: randomUUID(),
-    name,
-    createdAt: now,
-    updatedAt: now,
-  };
 
   let agencyAdmin: {
     id: string;
@@ -38,34 +28,44 @@ export function createAgency(input: CreateAgencyInput) {
       };
     }
 
-    const alreadyExists = users.some((user) => user.email === adminEmail);
+    const alreadyExists = await prisma.user.findUnique({
+      where: { email: adminEmail },
+    });
     if (alreadyExists) {
       return {
         error: "E-mail do admin ja cadastrado.",
         statusCode: 409 as const,
       };
     }
-
-    const newAdmin: UserRecord = {
-      id: randomUUID(),
-      name: adminName,
-      email: adminEmail,
-      passwordHash: hashSync(adminPassword, 10),
-      role: "AGENCY_ADMIN",
-      agencyId: agency.id,
-    };
-
-    users.push(newAdmin);
-    agencyAdmin = {
-      id: newAdmin.id,
-      name: newAdmin.name,
-      email: newAdmin.email,
-      role: "AGENCY_ADMIN",
-      agencyId: newAdmin.agencyId,
-    };
   }
 
-  agencies.push(agency);
+  const agency = await prisma.$transaction(async (tx) => {
+    const createdAgency = await tx.agency.create({
+      data: { name },
+    });
+
+    if (adminName && adminEmail && adminPassword) {
+      const newAdmin = await tx.user.create({
+        data: {
+          name: adminName,
+          email: adminEmail,
+          passwordHash: hashSync(adminPassword, 10),
+          role: "AGENCY_ADMIN",
+          agencyId: createdAgency.id,
+        },
+      });
+
+      agencyAdmin = {
+        id: newAdmin.id,
+        name: newAdmin.name,
+        email: newAdmin.email,
+        role: "AGENCY_ADMIN",
+        agencyId: newAdmin.agencyId ?? undefined,
+      };
+    }
+
+    return createdAgency;
+  });
 
   return {
     data: { agency, agencyAdmin },

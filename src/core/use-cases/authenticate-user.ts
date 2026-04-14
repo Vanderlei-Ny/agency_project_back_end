@@ -1,15 +1,15 @@
 import { compareSync } from "bcryptjs";
-import { users } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
 type LoginInput = {
   email: string;
   password: string;
 };
 
-export function authenticateUser(input: LoginInput) {
+export async function authenticateUser(input: LoginInput) {
   const { email, password } = input;
 
-  const user = users.find((item) => item.email === email);
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !compareSync(password, user.passwordHash)) {
     return { error: "Credenciais invalidas.", statusCode: 401 as const };

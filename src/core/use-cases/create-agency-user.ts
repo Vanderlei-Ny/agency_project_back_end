@@ -1,6 +1,5 @@
 import { hashSync } from "bcryptjs";
-import { randomUUID } from "node:crypto";
-import { agencies, users } from "../../database/in-memory-db";
+import { prisma } from "../../database/prisma";
 
 type CreateAgencyUserInput = {
   agencyId: string;
@@ -10,29 +9,30 @@ type CreateAgencyUserInput = {
   role: "AGENCY_ADMIN" | "AGENCY_MEMBER";
 };
 
-export function createAgencyUser(input: CreateAgencyUserInput) {
+export async function createAgencyUser(input: CreateAgencyUserInput) {
   const { agencyId, name, email, password, role } = input;
 
-  const agency = agencies.find((item) => item.id === agencyId);
+  const agency = await prisma.agency.findFirst({
+    where: { id: agencyId, deletedAt: null, statusAgency: true },
+  });
   if (!agency) {
     return { error: "Agencia nao encontrada.", statusCode: 404 as const };
   }
 
-  const alreadyExists = users.some((user) => user.email === email);
+  const alreadyExists = await prisma.user.findUnique({ where: { email } });
   if (alreadyExists) {
     return { error: "E-mail ja cadastrado.", statusCode: 409 as const };
   }
 
-  const newAgencyUser = {
-    id: randomUUID(),
-    name,
-    email,
-    passwordHash: hashSync(password, 10),
-    role,
-    agencyId,
-  };
-
-  users.push(newAgencyUser);
+  const newAgencyUser = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash: hashSync(password, 10),
+      role,
+      agencyId,
+    },
+  });
 
   return {
     data: {
