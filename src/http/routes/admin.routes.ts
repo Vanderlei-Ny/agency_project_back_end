@@ -3,6 +3,7 @@ import {
   createAgencyController,
   createAgencyUserController,
 } from "../controllers/admin.controller";
+import { authenticateMiddleware } from "../middlewares/authenticate";
 import { authorizeRoles } from "../middlewares/authorize";
 
 export async function adminRoutes(app: FastifyInstance) {
@@ -15,7 +16,7 @@ export async function adminRoutes(app: FastifyInstance) {
     };
   }>(
     "/admin/agencies",
-    { preHandler: [app.authenticate, authorizeRoles("SUPERADMIN")] },
+    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
     createAgencyController,
   );
 
@@ -29,7 +30,7 @@ export async function adminRoutes(app: FastifyInstance) {
     };
   }>(
     "/admin/agencies/:agencyId/users",
-    { preHandler: [app.authenticate, authorizeRoles("SUPERADMIN")] },
+    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
     createAgencyUserController,
   );
 }
