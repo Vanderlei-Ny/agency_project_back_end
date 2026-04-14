@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Define o enum de roles conforme sua imagem
+enum Role {
+  SUPERADMIN
+  AGENCY_ADMIN
+  AGENCY_MEMBER
+  CLIENT
+}
+
+// Status para o serviço em andamento
+enum ServiceStatus {
+  PENDENTE
+  CONCLUIDO
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CLIENT)
+  
+  // Relação: Um usuário pode pertencer a uma agência (exceto SuperAdmin)
+  agencyId  String?
+  agency    Agency?  @relation(fields: [agencyId], references: [id])
+  
+  // Relação: Briefings criados pelo usuário (se for Cliente)
+  briefings Briefing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Agency {
+  id            String    @id @default(uuid())
+  name          String
+  statusAgency  Boolean   @default(true)
+  numberOfStars Float     @default(0)
+  iconAgency    String?
+  
+  // Relações
+  users         User[]
+  services      Service[]
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       String?  // Opcional conforme imagem
+  
+  agencyId    String
+  agency      Agency   @relation(fields: [agencyId], references: [id])
+  
+  briefings   Briefing[]
+}
+
+model Briefing {
+  id        String   @id @default(uuid())
+  answers   Json     // Para armazenar as respostas flexíveis do formulário
+  
+  clientId  String
+  client    User     @relation(fields: [clientId], references: [id])
+  
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  
+  // Relação 1:1 com Budget
+  budget    Budget?
+  
+  createdAt DateTime @default(now())
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  value     String
+  accepted  Boolean  @default(false)
+  
+  briefingId String  @unique
+  briefing   Briefing @relation(fields: [briefingId], references: [id])
+
+  // Relação 1:1 com ServiceInProgress
+  serviceInProgress ServiceInProgress?
+}
+
+model ServiceInProgress {
+  id        String        @id @default(uuid())
+  deadline  DateTime
+  status    ServiceStatus @default(PENDENTE)
+  
+  budgetId  String        @unique
+  budget    Budget        @relation(fields: [budgetId], references: [id])
+}
