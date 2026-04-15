@@ -60,8 +60,19 @@ model Form {
   budgetValue     String?
   paymentMethod   String?
   rejectionReason String?
+  colors          Color[]
   status          FormStatus @default(PENDING_BUDGET)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   deletedAt       DateTime?
+}
+
+model Color {
+  id        String   @id @default(uuid())
+  name      String
+  hexCode   String
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
