@@ -4,3 +4,6 @@ dist/
 .env
 
 /generated/prisma
+
+uploads/deliveries/*
+!uploads/deliveries/.gitkeep

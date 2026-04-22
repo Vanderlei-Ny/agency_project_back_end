@@ -11,7 +11,10 @@ function isJwtUser(value: unknown): value is JwtUser {
   return (
     typeof payload.id === "string" &&
     typeof payload.email === "string" &&
-    typeof payload.role === "string"
+    typeof payload.role === "string" &&
+    (payload.agencyId === undefined ||
+      payload.agencyId === null ||
+      typeof payload.agencyId === "string")
   );
 }
 

@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { createAgency } from "../../core/use-cases/create-agency";
 import { createAgencyUser } from "../../core/use-cases/create-agency-user";
+import { deleteAgency } from "../../core/use-cases/delete-agency";
+import { updateAgency } from "../../core/use-cases/update-agency";
 
 export async function createAgencyController(
   request: FastifyRequest<{
@@ -13,7 +15,7 @@ export async function createAgencyController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = createAgency(request.body);
+  const result = await createAgency(request.body);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });
@@ -34,10 +36,42 @@ export async function createAgencyUserController(
   }>,
   reply: FastifyReply,
 ) {
-  const result = createAgencyUser({
+  const result = await createAgencyUser({
     agencyId: request.params.agencyId,
     ...request.body,
   });
+
+  if ("error" in result) {
+    return reply.code(result.statusCode).send({ message: result.error });
+  }
+
+  return reply.code(result.statusCode).send(result.data);
+}
+
+export async function updateAgencyController(
+  request: FastifyRequest<{
+    Params: { agencyId: string };
+    Body: { name: string };
+  }>,
+  reply: FastifyReply,
+) {
+  const result = await updateAgency({
+    agencyId: request.params.agencyId,
+    name: request.body.name,
+  });
+
+  if ("error" in result) {
+    return reply.code(result.statusCode).send({ message: result.error });
+  }
+
+  return reply.code(result.statusCode).send(result.data);
+}
+
+export async function deleteAgencyController(
+  request: FastifyRequest<{ Params: { agencyId: string } }>,
+  reply: FastifyReply,
+) {
+  const result = await deleteAgency(request.params.agencyId);
 
   if ("error" in result) {
     return reply.code(result.statusCode).send({ message: result.error });

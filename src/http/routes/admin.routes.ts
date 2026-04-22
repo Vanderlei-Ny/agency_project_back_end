@@ -2,6 +2,8 @@ import { FastifyInstance } from "fastify";
 import {
   createAgencyController,
   createAgencyUserController,
+  deleteAgencyController,
+  updateAgencyController,
 } from "../controllers/admin.controller";
 import { authenticateMiddleware } from "../middlewares/authenticate";
 import { authorizeRoles } from "../middlewares/authorize";
@@ -32,5 +34,20 @@ export async function adminRoutes(app: FastifyInstance) {
     "/admin/agencies/:agencyId/users",
     { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
     createAgencyUserController,
+  );
+
+  app.patch<{
+    Params: { agencyId: string };
+    Body: { name: string };
+  }>(
+    "/admin/agencies/:agencyId",
+    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    updateAgencyController,
+  );
+
+  app.delete<{ Params: { agencyId: string } }>(
+    "/admin/agencies/:agencyId",
+    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    deleteAgencyController,
   );
 }
