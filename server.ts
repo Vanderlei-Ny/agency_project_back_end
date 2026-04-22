@@ -1,12 +1,7 @@
-import Fastify, { FastifyInstance } from "fastify";
+import "dotenv/config";
+import { buildApp } from "./src/app";
 
-const fastify: FastifyInstance = Fastify({
-  logger: true,
-});
-
-fastify.get("/", async (request, reply) => {
-  return { hello: "world com TS!" };
-});
+const fastify = buildApp();
 
 const start = async () => {
   try {
