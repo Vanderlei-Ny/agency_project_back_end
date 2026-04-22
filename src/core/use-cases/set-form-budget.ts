@@ -1,13 +1,15 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../../database/prisma";
 
 type SetFormBudgetInput = {
   formId: string;
   agencyId: string;
   budgetValue: string;
+  budgetMessage?: string | null;
 };
 
 export async function setFormBudget(input: SetFormBudgetInput) {
-  const { formId, agencyId, budgetValue } = input;
+  const { formId, agencyId, budgetValue, budgetMessage } = input;
 
   const form = await prisma.form.findFirst({
     where: { id: formId, agencyId, deletedAt: null },
@@ -24,12 +26,30 @@ export async function setFormBudget(input: SetFormBudgetInput) {
     };
   }
 
+  const data: Prisma.FormUpdateInput = {
+    budgetValue,
+    status: "BUDGET_SENT",
+    rejectionReason: null,
+  };
+
+  if (budgetMessage !== undefined) {
+    data.budgetMessage =
+      budgetMessage == null || !String(budgetMessage).trim()
+        ? null
+        : String(budgetMessage).trim();
+  }
+
   const updated = await prisma.form.update({
     where: { id: formId },
-    data: {
-      budgetValue,
-      status: "BUDGET_SENT",
-      rejectionReason: null,
+    data,
+    include: {
+      client: {
+        select: { id: true, name: true, email: true },
+      },
+      agency: {
+        select: { id: true, name: true },
+      },
+      colors: true,
     },
   });
 

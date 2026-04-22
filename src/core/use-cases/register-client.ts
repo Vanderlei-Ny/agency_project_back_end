@@ -30,6 +30,7 @@ export async function registerClient(input: RegisterClientInput) {
       name: newClient.name,
       email: newClient.email,
       role: newClient.role,
+      agencyId: newClient.agencyId ?? null,
     },
     statusCode: 201 as const,
   };

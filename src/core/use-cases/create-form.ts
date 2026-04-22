@@ -4,10 +4,11 @@ type CreateFormInput = {
   clientId: string;
   agencyId: string;
   description: string;
+  colors?: Array<{ name: string; hexCode: string }>;
 };
 
 export async function createForm(input: CreateFormInput) {
-  const { clientId, agencyId, description } = input;
+  const { clientId, agencyId, description, colors } = input;
 
   const agency = await prisma.agency.findFirst({
     where: { id: agencyId, deletedAt: null, statusAgency: true },
@@ -23,6 +24,19 @@ export async function createForm(input: CreateFormInput) {
       agencyId,
       description,
       status: "PENDING_BUDGET",
+      colors:
+        colors && colors.length > 0
+          ? {
+              create: colors.map((c) => ({
+                name: c.name,
+                hexCode: c.hexCode,
+              })),
+            }
+          : undefined,
+    },
+    include: {
+      agency: { select: { id: true, name: true } },
+      colors: true,
     },
   });
 

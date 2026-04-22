@@ -40,6 +40,8 @@ model User {
 model Agency {
   id            String    @id @default(uuid())
   name          String
+  description   String?
+  phone         String?
   statusAgency  Boolean   @default(true)
   numberOfStars Float     @default(0)
   iconAgency    String?
@@ -58,8 +60,14 @@ model Form {
   agencyId        String
   agency          Agency     @relation(fields: [agencyId], references: [id])
   budgetValue     String?
+  budgetMessage   String?
   paymentMethod   String?
   rejectionReason String?
+  agencyFeedback  String?
+  deliveryStoredName String?
+  deliveryFileName   String?
+  deliveryMimeType   String?
+  deliveryMessage    String?
   colors          Color[]
   status          FormStatus @default(PENDING_BUDGET)
   createdAt       DateTime   @default(now())

@@ -3,10 +3,14 @@ import {
   createFormController,
   decideFormBudgetController,
   deleteFormController,
+  deliverFormController,
+  downloadFormDeliveryFileController,
+  getClientFormController,
   listAgencyFormsController,
   listClientFormsController,
   setFormBudgetController,
   updateFormStatusController,
+  respondFormController,
 } from "../controllers/forms.controller";
 import { authenticateMiddleware } from "../middlewares/authenticate";
 import { authorizeRoles } from "../middlewares/authorize";
@@ -24,6 +28,18 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms/my",
     { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
     listClientFormsController,
+  );
+
+  app.get<{ Params: { formId: string } }>(
+    "/forms/my/:formId/delivery-file",
+    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    downloadFormDeliveryFileController,
+  );
+
+  app.get<{ Params: { formId: string } }>(
+    "/forms/my/:formId",
+    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    getClientFormController,
   );
 
   app.patch<{
@@ -58,13 +74,13 @@ export async function formsRoutes(app: FastifyInstance) {
 
   app.patch<{
     Params: { formId: string };
-    Body: { budgetValue: string };
+    Body: { budgetValue: string; budgetMessage?: string };
   }>(
     "/agency/forms/:formId/budget",
     {
       preHandler: [
         authenticateMiddleware,
-        authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
+        authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
       ],
     },
     setFormBudgetController,
@@ -78,9 +94,34 @@ export async function formsRoutes(app: FastifyInstance) {
     {
       preHandler: [
         authenticateMiddleware,
-        authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
+        authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
       ],
     },
     updateFormStatusController,
+  );
+
+  app.post<{ Params: { formId: string } }>(
+    "/agency/forms/:formId/deliver",
+    {
+      preHandler: [
+        authenticateMiddleware,
+        authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
+      ],
+    },
+    deliverFormController,
+  );
+
+  app.patch<{
+    Params: { formId: string };
+    Body: { feedback: string };
+  }>(
+    "/agency/forms/:formId/respond",
+    {
+      preHandler: [
+        authenticateMiddleware,
+        authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
+      ],
+    },
+    respondFormController,
   );
 }

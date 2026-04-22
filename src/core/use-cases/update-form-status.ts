@@ -39,6 +39,15 @@ export async function updateFormStatus(input: UpdateFormStatusInput) {
   const updated = await prisma.form.update({
     where: { id: formId },
     data: { status },
+    include: {
+      client: {
+        select: { id: true, name: true, email: true },
+      },
+      agency: {
+        select: { id: true, name: true },
+      },
+      colors: true,
+    },
   });
 
   return {

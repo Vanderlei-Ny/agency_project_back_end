@@ -14,7 +14,14 @@ export async function registerClientController(
     return reply.code(result.statusCode).send({ message: result.error });
   }
 
-  return reply.code(result.statusCode).send(result.data);
+  const token = request.server.jwt.sign({
+    id: result.data.id,
+    email: result.data.email,
+    role: result.data.role,
+    agencyId: result.data.agencyId ?? undefined,
+  });
+
+  return reply.code(result.statusCode).send({ token, user: result.data });
 }
 
 export async function loginController(

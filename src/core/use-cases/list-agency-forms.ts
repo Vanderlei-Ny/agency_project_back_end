@@ -11,6 +11,7 @@ export async function listAgencyForms(input: ListAgencyFormsInput) {
       client: {
         select: { id: true, name: true, email: true },
       },
+      colors: true,
     },
     orderBy: { createdAt: "desc" },
   });

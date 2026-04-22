@@ -7,6 +7,6 @@ export async function authenticateMiddleware(
   try {
     await request.jwtVerify();
   } catch {
-    reply.code(401).send({ message: "Token invalido ou ausente." });
+    return reply.code(401).send({ message: "Token invalido ou ausente." });
   }
 }

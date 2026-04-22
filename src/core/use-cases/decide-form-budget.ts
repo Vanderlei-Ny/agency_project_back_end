@@ -53,6 +53,10 @@ export async function decideFormBudget(input: DecideFormBudgetInput) {
           rejectionReason,
           paymentMethod: null,
         },
+    include: {
+      agency: { select: { id: true, name: true } },
+      colors: true,
+    },
   });
 
   return {

@@ -11,6 +11,7 @@ export async function listClientForms(input: ListClientFormsInput) {
       agency: {
         select: { id: true, name: true },
       },
+      colors: true,
     },
     orderBy: { createdAt: "desc" },
   });
