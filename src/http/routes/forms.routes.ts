@@ -20,25 +20,65 @@ export async function formsRoutes(app: FastifyInstance) {
     Body: { agencyId: string; description: string };
   }>(
     "/forms",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["agencyId", "description"],
+          properties: {
+            agencyId: { type: "string" },
+            description: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     createFormController,
   );
 
   app.get(
     "/forms/my",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     listClientFormsController,
   );
 
   app.get<{ Params: { formId: string } }>(
     "/forms/my/:formId/delivery-file",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     downloadFormDeliveryFileController,
   );
 
   app.get<{ Params: { formId: string } }>(
     "/forms/my/:formId",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     getClientFormController,
   );
 
@@ -51,19 +91,53 @@ export async function formsRoutes(app: FastifyInstance) {
     };
   }>(
     "/forms/:formId/decision",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["approved"],
+          properties: {
+            approved: { type: "boolean" },
+            paymentMethod: { type: "string" },
+            rejectionReason: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     decideFormBudgetController,
   );
 
   app.delete<{ Params: { formId: string } }>(
     "/forms/:formId",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
+    },
     deleteFormController,
   );
 
   app.get(
     "/agency/forms",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
@@ -78,6 +152,23 @@ export async function formsRoutes(app: FastifyInstance) {
   }>(
     "/agency/forms/:formId/budget",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["budgetValue"],
+          properties: {
+            budgetValue: { type: "string" },
+            budgetMessage: { type: "string" },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
@@ -92,6 +183,22 @@ export async function formsRoutes(app: FastifyInstance) {
   }>(
     "/agency/forms/:formId/status",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["status"],
+          properties: {
+            status: { type: "string", enum: ["IN_PROGRESS", "DELIVERED"] },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
@@ -103,6 +210,15 @@ export async function formsRoutes(app: FastifyInstance) {
   app.post<{ Params: { formId: string } }>(
     "/agency/forms/:formId/deliver",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
@@ -117,6 +233,22 @@ export async function formsRoutes(app: FastifyInstance) {
   }>(
     "/agency/forms/:formId/respond",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            formId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["feedback"],
+          properties: {
+            feedback: { type: "string" },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),

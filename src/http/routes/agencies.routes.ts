@@ -11,7 +11,12 @@ import { authorizeRoles } from "../middlewares/authorize";
 export async function agenciesRoutes(app: FastifyInstance) {
   app.get(
     "/agencies",
-    { preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }]
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")]
+    },
     listAgenciesController,
   );
 
@@ -25,6 +30,19 @@ export async function agenciesRoutes(app: FastifyInstance) {
   }>(
     "/agencies",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            phone: { type: "string" },
+            iconAgency: { type: "string" },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("CLIENT", "AGENCY_ADMIN", "AGENCY_MEMBER"),
@@ -36,6 +54,9 @@ export async function agenciesRoutes(app: FastifyInstance) {
   app.get(
     "/agency/me",
     {
+      schema: {
+        security: [{ bearerAuth: [] }]
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
@@ -54,6 +75,18 @@ export async function agenciesRoutes(app: FastifyInstance) {
   }>(
     "/agency/me",
     {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string", nullable: true },
+            phone: { type: "string", nullable: true },
+            iconAgency: { type: "string" },
+          },
+        },
+      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),

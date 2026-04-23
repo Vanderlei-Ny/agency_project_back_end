@@ -18,7 +18,22 @@ export async function adminRoutes(app: FastifyInstance) {
     };
   }>(
     "/admin/agencies",
-    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: { type: "string" },
+            adminName: { type: "string" },
+            adminEmail: { type: "string" },
+            adminPassword: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")],
+    },
     createAgencyController,
   );
 
@@ -32,7 +47,28 @@ export async function adminRoutes(app: FastifyInstance) {
     };
   }>(
     "/admin/agencies/:agencyId/users",
-    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            agencyId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["name", "email", "password", "role"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            password: { type: "string" },
+            role: { type: "string", enum: ["AGENCY_ADMIN", "AGENCY_MEMBER"] },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")],
+    },
     createAgencyUserController,
   );
 
@@ -41,13 +77,42 @@ export async function adminRoutes(app: FastifyInstance) {
     Body: { name: string };
   }>(
     "/admin/agencies/:agencyId",
-    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            agencyId: { type: "string" },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")],
+    },
     updateAgencyController,
   );
 
   app.delete<{ Params: { agencyId: string } }>(
     "/admin/agencies/:agencyId",
-    { preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")] },
+    {
+      schema: {
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: "object",
+          properties: {
+            agencyId: { type: "string" },
+          },
+        },
+      },
+      preHandler: [authenticateMiddleware, authorizeRoles("SUPERADMIN")],
+    },
     deleteAgencyController,
   );
 }
