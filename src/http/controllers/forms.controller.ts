@@ -180,6 +180,7 @@ export async function setFormBudgetController(
     agencyId: user.agencyId,
     budgetValue: request.body.budgetValue,
     budgetMessage: request.body.budgetMessage,
+    respondedByUserId: user.id,
   });
 
   if ("error" in result) {
@@ -236,6 +237,7 @@ export async function updateFormStatusController(
     formId: request.params.formId,
     agencyId: user.agencyId,
     status: request.body.status,
+    respondedByUserId: user.id,
   });
 
   if ("error" in result) {
@@ -282,6 +284,7 @@ export async function respondFormController(
     formId: request.params.formId,
     agencyId: user.agencyId,
     feedback: request.body.feedback,
+    respondedByUserId: user.id,
   });
 
   if ("error" in result) {

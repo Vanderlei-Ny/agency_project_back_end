@@ -4,7 +4,9 @@ import {
   createAgencyController,
   getMyAgencyController,
   updateMyAgencyController,
+  addAgencyMemberController,
 } from "../controllers/agencies.controller";
+import { listAgencyMembersController } from "../controllers/users.controller";
 import { authenticateMiddleware } from "../middlewares/authenticate";
 import { authorizeRoles } from "../middlewares/authorize";
 
@@ -12,10 +14,7 @@ export async function agenciesRoutes(app: FastifyInstance) {
   app.get(
     "/agencies",
     {
-      schema: {
-        security: [{ bearerAuth: [] }]
-      },
-      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")]
+      preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
     },
     listAgenciesController,
   );
@@ -31,7 +30,6 @@ export async function agenciesRoutes(app: FastifyInstance) {
     "/agencies",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         body: {
           type: "object",
           required: ["name"],
@@ -54,9 +52,6 @@ export async function agenciesRoutes(app: FastifyInstance) {
   app.get(
     "/agency/me",
     {
-      schema: {
-        security: [{ bearerAuth: [] }]
-      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
@@ -76,7 +71,6 @@ export async function agenciesRoutes(app: FastifyInstance) {
     "/agency/me",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         body: {
           type: "object",
           properties: {
@@ -93,5 +87,44 @@ export async function agenciesRoutes(app: FastifyInstance) {
       ],
     },
     updateMyAgencyController,
+  );
+
+  app.get(
+    "/agency/members",
+    {
+      preHandler: [
+        authenticateMiddleware,
+        authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
+      ],
+    },
+    listAgencyMembersController,
+  );
+
+  app.post<{
+    Body: {
+      name: string;
+      email: string;
+      password: string;
+    };
+  }>(
+    "/agency/members",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["name", "email", "password"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            password: { type: "string" },
+          },
+        },
+      },
+      preHandler: [
+        authenticateMiddleware,
+        authorizeRoles("AGENCY_ADMIN", "SUPERADMIN"),
+      ],
+    },
+    addAgencyMemberController,
   );
 }

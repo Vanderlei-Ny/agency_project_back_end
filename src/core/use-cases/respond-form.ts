@@ -4,12 +4,11 @@ interface RespondFormInput {
   formId: string;
   agencyId: string;
   feedback: string;
+  respondedByUserId?: string;
 }
 
-/** Recusa explícita da agência (antes ou depois de enviar orçamento). */
 export async function respondForm(input: RespondFormInput) {
   try {
-    // Verificar se form existe e pertence à agência
     const form = await prisma.form.findFirst({
       where: {
         id: input.formId,
@@ -38,6 +37,8 @@ export async function respondForm(input: RespondFormInput) {
         agencyFeedback: input.feedback,
         rejectionReason: input.feedback,
         status: "REJECTED" as const,
+        respondedByUserId: input.respondedByUserId,
+        respondedAt: input.respondedByUserId ? new Date() : undefined,
       },
       include: {
         client: {
@@ -45,6 +46,9 @@ export async function respondForm(input: RespondFormInput) {
         },
         agency: {
           select: { id: true, name: true },
+        },
+        respondedByUser: {
+          select: { id: true, name: true, email: true },
         },
         colors: true,
       },

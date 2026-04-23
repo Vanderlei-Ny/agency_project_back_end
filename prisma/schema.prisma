@@ -33,6 +33,7 @@ model User {
   agencyId     String?
   agency       Agency?  @relation(fields: [agencyId], references: [id])
   forms        Form[]
+  formResponses Form[]  @relation("FormResponses")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -59,6 +60,9 @@ model Form {
   client          User       @relation(fields: [clientId], references: [id])
   agencyId        String
   agency          Agency     @relation(fields: [agencyId], references: [id])
+  respondedByUserId String?
+  respondedByUser User?      @relation("FormResponses", fields: [respondedByUserId], references: [id])
+  respondedAt     DateTime?
   budgetValue     String?
   budgetMessage   String?
   paymentMethod   String?

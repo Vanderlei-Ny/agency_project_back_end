@@ -1,13 +1,22 @@
 import { FastifyInstance } from "fastify";
-import { meController } from "../controllers/users.controller";
+import { 
+  meController,
+  listAgencyMembersController,
+  createAgencyMemberController 
+} from "../controllers/users.controller";
 import { authenticateMiddleware } from "../middlewares/authenticate";
 
 export async function usersRoutes(app: FastifyInstance) {
+  
   app.get("/me", {
-    schema: {
-      // O cadeado para o seu perfil de usuário
-      security: [{ bearerAuth: [] }],
-    },
     preHandler: [authenticateMiddleware]
   }, meController);
+
+  app.get("/users/agency", {
+    preHandler: [authenticateMiddleware]
+  }, listAgencyMembersController);
+
+  app.post("/users/agency", {
+    preHandler: [authenticateMiddleware],
+  }, createAgencyMemberController);
 }

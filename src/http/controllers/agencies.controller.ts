@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { listActiveAgencies } from "../../core/use-cases/list-active-agencies";
 import { createUserAgency } from "../../core/use-cases/create-user-agency";
 import { updateAgency } from "../../core/use-cases/update-agency";
+import { addAgencyMember } from "../../core/use-cases/add-agency-member";
 import { getAuthUser } from "../middlewares/get-auth-user";
 import { prisma } from "../../database/prisma";
 
@@ -103,6 +104,39 @@ export async function updateMyAgencyController(
     description: request.body.description,
     phone: request.body.phone,
     iconAgency: request.body.iconAgency,
+  });
+
+  if ("error" in result) {
+    return reply.code(result.statusCode).send({ message: result.error });
+  }
+
+  return reply.code(result.statusCode).send(result.data);
+}
+
+export async function addAgencyMemberController(
+  request: FastifyRequest<{
+    Body: {
+      name: string;
+      email: string;
+      password: string;
+    };
+  }>,
+  reply: FastifyReply,
+) {
+  const user = getAuthUser(request);
+  if (!user || !user.agencyId) {
+    return reply.code(403).send({ message: "Usuario sem agencia vinculada." });
+  }
+
+  if (user.role !== "AGENCY_ADMIN" && user.role !== "SUPERADMIN") {
+    return reply.code(403).send({ message: "Sem permissão para adicionar funcionários." });
+  }
+
+  const result = await addAgencyMember({
+    agencyId: user.agencyId,
+    name: request.body.name,
+    email: request.body.email,
+    password: request.body.password,
   });
 
   if ("error" in result) {

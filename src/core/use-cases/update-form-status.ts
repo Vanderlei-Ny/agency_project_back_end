@@ -5,6 +5,7 @@ type UpdateFormStatusInput = {
   formId: string;
   agencyId: string;
   status: "IN_PROGRESS" | "DELIVERED";
+  respondedByUserId?: string;
 };
 
 const allowedTransitions: Record<FormStatus, FormStatus[]> = {
@@ -17,7 +18,7 @@ const allowedTransitions: Record<FormStatus, FormStatus[]> = {
 };
 
 export async function updateFormStatus(input: UpdateFormStatusInput) {
-  const { formId, agencyId, status } = input;
+  const { formId, agencyId, status, respondedByUserId } = input;
 
   const form = await prisma.form.findFirst({
     where: { id: formId, agencyId, deletedAt: null },
@@ -38,13 +39,20 @@ export async function updateFormStatus(input: UpdateFormStatusInput) {
 
   const updated = await prisma.form.update({
     where: { id: formId },
-    data: { status },
+    data: {
+      status,
+      respondedByUserId: respondedByUserId || undefined,
+      respondedAt: respondedByUserId ? new Date() : undefined,
+    },
     include: {
       client: {
         select: { id: true, name: true, email: true },
       },
       agency: {
         select: { id: true, name: true },
+      },
+      respondedByUser: {
+        select: { id: true, name: true, email: true },
       },
       colors: true,
     },

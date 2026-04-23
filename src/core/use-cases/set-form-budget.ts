@@ -6,10 +6,11 @@ type SetFormBudgetInput = {
   agencyId: string;
   budgetValue: string;
   budgetMessage?: string | null;
+  respondedByUserId?: string;
 };
 
 export async function setFormBudget(input: SetFormBudgetInput) {
-  const { formId, agencyId, budgetValue, budgetMessage } = input;
+  const { formId, agencyId, budgetValue, budgetMessage, respondedByUserId } = input;
 
   const form = await prisma.form.findFirst({
     where: { id: formId, agencyId, deletedAt: null },
@@ -39,6 +40,11 @@ export async function setFormBudget(input: SetFormBudgetInput) {
         : String(budgetMessage).trim();
   }
 
+  if (respondedByUserId) {
+    data.respondedByUser = { connect: { id: respondedByUserId } };
+    data.respondedAt = new Date();
+  }
+
   const updated = await prisma.form.update({
     where: { id: formId },
     data,
@@ -48,6 +54,9 @@ export async function setFormBudget(input: SetFormBudgetInput) {
       },
       agency: {
         select: { id: true, name: true },
+      },
+      respondedByUser: {
+        select: { id: true, name: true, email: true },
       },
       colors: true,
     },

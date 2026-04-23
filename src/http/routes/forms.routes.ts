@@ -22,7 +22,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         body: {
           type: "object",
           required: ["agencyId", "description"],
@@ -40,9 +39,6 @@ export async function formsRoutes(app: FastifyInstance) {
   app.get(
     "/forms/my",
     {
-      schema: {
-        security: [{ bearerAuth: [] }],
-      },
       preHandler: [authenticateMiddleware, authorizeRoles("CLIENT")],
     },
     listClientFormsController,
@@ -52,7 +48,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms/my/:formId/delivery-file",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -69,7 +64,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms/my/:formId",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -93,7 +87,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms/:formId/decision",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -119,7 +112,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/forms/:formId",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -135,9 +127,6 @@ export async function formsRoutes(app: FastifyInstance) {
   app.get(
     "/agency/forms",
     {
-      schema: {
-        security: [{ bearerAuth: [] }],
-      },
       preHandler: [
         authenticateMiddleware,
         authorizeRoles("AGENCY_ADMIN", "AGENCY_MEMBER"),
@@ -153,7 +142,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/agency/forms/:formId/budget",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -184,7 +172,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/agency/forms/:formId/status",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -211,7 +198,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/agency/forms/:formId/deliver",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
@@ -234,7 +220,6 @@ export async function formsRoutes(app: FastifyInstance) {
     "/agency/forms/:formId/respond",
     {
       schema: {
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {
